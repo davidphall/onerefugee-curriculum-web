@@ -1,0 +1,389 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  STAFF
+  ADMIN
+}
+
+enum CourseCategory {
+  EDUCATION
+  PROFESSIONAL
+  WELLNESS
+  FINANCIAL
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LessonType {
+  READING
+  VIDEO
+  QUIZ
+  DOCUMENT
+}
+
+enum AssignmentType {
+  FORM
+  UPLOAD
+  TEXT
+  QUIZ
+}
+
+enum SubmissionStatus {
+  PENDING
+  REVIEWED
+  APPROVED
+  REJECTED
+}
+
+enum MilestoneType {
+  INTERNSHIP
+  GRADUATION
+  CITIZENSHIP
+  EMPLOYMENT
+  OTHER
+}
+
+enum NotificationType {
+  ASSIGNMENT_DUE
+  ASSIGNMENT_GRADED
+  MESSAGE_RECEIVED
+  COURSE_ENROLLED
+  MILESTONE_ADDED
+  WELLNESS_FLAGGED
+  BADGE_EARNED
+  GENERAL
+}
+
+// ─── Users ───────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentProfile     StudentProfile?
+  enrollments        Enrollment[]
+  progress           Progress[]
+  submissions        Submission[]
+  formSubmissions    FormSubmission[]
+  milestones         Milestone[]
+  wellnessLogs       WellnessLog[]      @relation("WellnessStudent")
+  wellnessStaff      WellnessLog[]      @relation("WellnessStaff")
+  points             Points[]
+  badges             StudentBadge[]
+  streak             Streak?
+  notifications      Notification[]
+  sentMessages       Message[]          @relation("MessageSender")
+  receivedMessages   Message[]          @relation("MessageRecipient")
+  groupMemberships   MessageGroupMember[]
+  groupMessages      GroupMessage[]
+  staffAssignments   StaffAssignment[]  @relation("StaffUser")
+  studentAssignments StaffAssignment[]  @relation("StudentUser")
+  createdForms       Form[]
+  createdGroups      MessageGroup[]
+}
+
+model StudentProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  countryOfOrigin String?
+  languages       String[]
+  intakeDate      DateTime?
+  university      String?
+  major           String?
+  phone           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model StaffAssignment {
+  id        String   @id @default(cuid())
+  staffId   String
+  studentId String
+  staff     User     @relation("StaffUser", fields: [staffId], references: [id])
+  student   User     @relation("StudentUser", fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([staffId, studentId])
+}
+
+// ─── Curriculum ──────────────────────────────────────────
+
+model Course {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  category    CourseCategory
+  status      CourseStatus   @default(DRAFT)
+  imageUrl    String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  modules     Module[]
+  enrollments Enrollment[]
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lessons     Lesson[]
+  assignments Assignment[]
+}
+
+model Lesson {
+  id        String     @id @default(cuid())
+  moduleId  String
+  module    Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title     String
+  content   String?
+  videoUrl  String?
+  type      LessonType @default(READING)
+  order     Int
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  progress  Progress[]
+}
+
+model Assignment {
+  id          String         @id @default(cuid())
+  moduleId    String
+  module      Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  dueDate     DateTime?
+  type        AssignmentType @default(TEXT)
+  pointValue  Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  submissions Submission[]
+}
+
+// ─── Student Progress ────────────────────────────────────
+
+model Enrollment {
+  id          String    @id @default(cuid())
+  studentId   String
+  student     User      @relation(fields: [studentId], references: [id])
+  courseId    String
+  course      Course    @relation(fields: [courseId], references: [id])
+  enrolledAt  DateTime  @default(now())
+  completedAt DateTime?
+
+  @@unique([studentId, courseId])
+}
+
+model Progress {
+  id          String   @id @default(cuid())
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id])
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  completedAt DateTime @default(now())
+
+  @@unique([studentId, lessonId])
+}
+
+model Submission {
+  id           String           @id @default(cuid())
+  assignmentId String
+  assignment   Assignment       @relation(fields: [assignmentId], references: [id])
+  studentId    String
+  student      User             @relation(fields: [studentId], references: [id])
+  status       SubmissionStatus @default(PENDING)
+  notes        String?
+  formData     Json?
+  submittedAt  DateTime         @default(now())
+  reviewedAt   DateTime?
+
+  @@unique([assignmentId, studentId])
+}
+
+// ─── Forms ───────────────────────────────────────────────
+
+model Form {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  fields      Json
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  submissions FormSubmission[]
+}
+
+model FormSubmission {
+  id          String   @id @default(cuid())
+  formId      String
+  form        Form     @relation(fields: [formId], references: [id])
+  studentId   String
+  student     User     @relation(fields: [studentId], references: [id])
+  responses   Json
+  submittedAt DateTime @default(now())
+
+  @@unique([formId, studentId])
+}
+
+// ─── Wellness & Milestones ───────────────────────────────
+
+model WellnessLog {
+  id        String   @id @default(cuid())
+  studentId String
+  student   User     @relation("WellnessStudent", fields: [studentId], references: [id])
+  staffId   String
+  staff     User     @relation("WellnessStaff", fields: [staffId], references: [id])
+  notes     String?
+  flagged   Boolean  @default(false)
+  date      DateTime @default(now())
+}
+
+model Milestone {
+  id        String        @id @default(cuid())
+  studentId String
+  student   User          @relation(fields: [studentId], references: [id])
+  type      MilestoneType
+  notes     String?
+  date      DateTime
+  createdAt DateTime      @default(now())
+}
+
+// ─── Resources ───────────────────────────────────────────
+
+model Resource {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
+  category  String
+  createdAt DateTime @default(now())
+}
+
+// ─── Notifications ───────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  message   String
+  read      Boolean          @default(false)
+  emailSent Boolean          @default(false)
+  sentAt    DateTime         @default(now())
+  readAt    DateTime?
+}
+
+// ─── Messaging ───────────────────────────────────────────
+
+model Message {
+  id          String    @id @default(cuid())
+  senderId    String
+  sender      User      @relation("MessageSender", fields: [senderId], references: [id])
+  recipientId String
+  recipient   User      @relation("MessageRecipient", fields: [recipientId], references: [id])
+  body        String
+  read        Boolean   @default(false)
+  sentAt      DateTime  @default(now())
+  readAt      DateTime?
+}
+
+model MessageGroup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+
+  members  MessageGroupMember[]
+  messages GroupMessage[]
+}
+
+model MessageGroupMember {
+  id       String       @id @default(cuid())
+  groupId  String
+  group    MessageGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User         @relation(fields: [userId], references: [id])
+  joinedAt DateTime     @default(now())
+
+  @@unique([groupId, userId])
+}
+
+model GroupMessage {
+  id       String       @id @default(cuid())
+  groupId  String
+  group    MessageGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  senderId String
+  sender   User         @relation(fields: [senderId], references: [id])
+  body     String
+  sentAt   DateTime     @default(now())
+}
+
+// ─── Gamification ────────────────────────────────────────
+
+model Points {
+  id        String   @id @default(cuid())
+  studentId String
+  student   User     @relation(fields: [studentId], references: [id])
+  amount    Int
+  reason    String
+  earnedAt  DateTime @default(now())
+}
+
+model Badge {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String
+  iconUrl     String?
+  criteria    String
+  createdAt   DateTime     @default(now())
+
+  students StudentBadge[]
+}
+
+model StudentBadge {
+  id        String   @id @default(cuid())
+  studentId String
+  student   User     @relation(fields: [studentId], references: [id])
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id])
+  earnedAt  DateTime @default(now())
+
+  @@unique([studentId, badgeId])
+}
+
+model Streak {
+  id             String    @id @default(cuid())
+  studentId      String    @unique
+  student        User      @relation(fields: [studentId], references: [id])
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveDate DateTime?
+  updatedAt      DateTime  @updatedAt
+}
