@@ -14,16 +14,19 @@ import {
   Settings,
   BookMarked,
   Heart,
+  HandHeart,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Role = "STUDENT" | "STAFF" | "ADMIN";
+type Role = "STUDENT" | "STAFF" | "ADMIN" | "VOLUNTEER";
 
 const studentNav = [
   { label: "Dashboard", href: "/student", icon: LayoutDashboard },
   { label: "My Courses", href: "/student/courses", icon: BookOpen },
   { label: "Assignments", href: "/student/assignments", icon: FileText },
   { label: "Progress", href: "/student/progress", icon: Trophy },
+  { label: "Volunteers", href: "/student/volunteers", icon: HandHeart },
   { label: "Messages", href: "/messages", icon: MessageSquare },
   { label: "Resources", href: "/resources", icon: BookMarked },
 ];
@@ -46,10 +49,19 @@ const adminNav = [
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
+const volunteerNav = [
+  { label: "Dashboard", href: "/volunteer", icon: LayoutDashboard },
+  { label: "My Mentees", href: "/volunteer/mentees", icon: Users },
+  { label: "My Profile", href: "/volunteer/profile", icon: UserCircle },
+  { label: "Messages", href: "/messages", icon: MessageSquare },
+  { label: "Resources", href: "/resources", icon: BookMarked },
+];
+
 const navByRole: Record<Role, typeof studentNav> = {
   STUDENT: studentNav,
   STAFF: staffNav,
   ADMIN: adminNav,
+  VOLUNTEER: volunteerNav,
 };
 
 interface AppSidebarProps {
@@ -76,7 +88,7 @@ export function AppSidebar({ role, userName }: AppSidebarProps) {
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         {nav.map(({ label, href, icon: Icon }) => {
           const active =
-            href === "/student" || href === "/staff" || href === "/admin"
+            href === "/student" || href === "/staff" || href === "/admin" || href === "/volunteer"
               ? pathname === href
               : pathname.startsWith(href);
 

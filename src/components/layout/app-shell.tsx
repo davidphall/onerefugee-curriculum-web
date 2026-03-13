@@ -9,7 +9,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen bg-background">
       <AppSidebar
-        role={user.role as "STUDENT" | "STAFF" | "ADMIN"}
+        role={user.role as "STUDENT" | "STAFF" | "ADMIN" | "VOLUNTEER"}
         userName={user.name}
       />
       <main className="flex-1 ml-64 overflow-y-auto">

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const roles = ["STUDENT", "STAFF", "ADMIN"];
+const roles = ["STUDENT", "STAFF", "ADMIN", "VOLUNTEER"];
 
 export function UserRoleSelect({ userId, currentRole }: { userId: string; currentRole: string }) {
   const [role, setRole] = useState(currentRole);

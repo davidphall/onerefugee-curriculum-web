@@ -11,6 +11,8 @@ export default async function DashboardPage() {
       redirect("/admin");
     case "STAFF":
       redirect("/staff");
+    case "VOLUNTEER":
+      redirect("/volunteer");
     case "STUDENT":
     default:
       redirect("/student");

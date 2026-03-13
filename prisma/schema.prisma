@@ -10,6 +10,12 @@ enum Role {
   STUDENT
   STAFF
   ADMIN
+  VOLUNTEER
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  ENDED
 }
 
 enum CourseCategory {
@@ -96,6 +102,50 @@ model User {
   studentAssignments StaffAssignment[]  @relation("StudentUser")
   createdForms       Form[]
   createdGroups      MessageGroup[]
+  volunteerProfile   VolunteerProfile?
+  mentorships        MentorshipConnection[] @relation("VolunteerConnections")
+  menteeship         MentorshipConnection[] @relation("StudentConnections")
+  volunteerNotes     MentorshipNote[]
+}
+
+// ─── Volunteer ───────────────────────────────────────────
+
+model VolunteerProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio          String?
+  skills       String[]
+  availability String?
+  linkedinUrl  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MentorshipConnection {
+  id          String           @id @default(cuid())
+  volunteerId String
+  volunteer   User             @relation("VolunteerConnections", fields: [volunteerId], references: [id])
+  studentId   String
+  student     User             @relation("StudentConnections", fields: [studentId], references: [id])
+  status      ConnectionStatus @default(ACTIVE)
+  connectedAt DateTime         @default(now())
+  endedAt     DateTime?
+
+  notes MentorshipNote[]
+
+  @@unique([volunteerId, studentId])
+}
+
+model MentorshipNote {
+  id           String               @id @default(cuid())
+  connectionId String
+  connection   MentorshipConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  volunteerId  String
+  volunteer    User                 @relation(fields: [volunteerId], references: [id])
+  body         String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 }
 
 model StudentProfile {
