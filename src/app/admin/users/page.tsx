@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { UserRoleSelect } from "./user-role-select";
 import { UserSearch } from "./user-search";
 import { AssignStaffModal } from "./assign-staff-modal";
+import { EnrollCoursesModal } from "./enroll-courses-modal";
 
 const roleColors: Record<string, string> = {
   STUDENT: "bg-blue-50 text-blue-700 border-blue-200",
@@ -40,11 +41,18 @@ export default async function UsersPage({
     orderBy: { createdAt: "desc" },
   });
 
-  const staffList = await prisma.user.findMany({
-    where: { role: "STAFF" },
-    select: { id: true, name: true },
-    orderBy: { name: "asc" },
-  });
+  const [staffList, allCourses] = await Promise.all([
+    prisma.user.findMany({
+      where: { role: "STAFF" },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.course.findMany({
+      where: { status: "PUBLISHED" },
+      select: { id: true, title: true, category: true },
+      orderBy: { title: "asc" },
+    }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -112,6 +120,14 @@ export default async function UsersPage({
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    {user.role === "STUDENT" && (
+                      <EnrollCoursesModal
+                        studentId={user.id}
+                        studentName={user.name}
+                        allCourses={allCourses}
+                        enrolledCourseIds={user.enrollments.map((e) => e.courseId)}
+                      />
+                    )}
                     {user.role === "STUDENT" && (
                       <AssignStaffModal
                         studentId={user.id}
