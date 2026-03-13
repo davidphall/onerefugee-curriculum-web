@@ -102,12 +102,20 @@ export default async function StudentProfilePage({
   return (
     <div className="space-y-8">
       {/* Back */}
-      <Link
-        href="/staff/students"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ChevronLeft className="h-4 w-4" /> Back to students
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          href="/staff/students"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" /> Back to students
+        </Link>
+        <Link
+          href={`/staff/students/${studentId}/workspace`}
+          className="text-sm font-medium border rounded-md px-3 py-1.5 hover:bg-muted transition-colors"
+        >
+          View Workspace
+        </Link>
+      </div>
 
       {/* Header */}
       <div className="flex items-start gap-4">

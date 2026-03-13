@@ -16,6 +16,7 @@ import {
   Heart,
   HandHeart,
   UserCircle,
+  FolderOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ const studentNav = [
   { label: "My Courses", href: "/student/courses", icon: BookOpen },
   { label: "Assignments", href: "/student/assignments", icon: FileText },
   { label: "Progress", href: "/student/progress", icon: Trophy },
+  { label: "My Workspace", href: "/student/workspace", icon: FolderOpen },
   { label: "Volunteers", href: "/student/volunteers", icon: HandHeart },
   { label: "Messages", href: "/messages", icon: MessageSquare },
   { label: "Resources", href: "/resources", icon: BookMarked },

@@ -18,6 +18,15 @@ enum ConnectionStatus {
   ENDED
 }
 
+enum ApplicationStage {
+  APPLIED
+  PHONE_SCREEN
+  INTERVIEW
+  OFFER
+  REJECTED
+  WITHDRAWN
+}
+
 enum CourseCategory {
   EDUCATION
   PROFESSIONAL
@@ -106,6 +115,8 @@ model User {
   mentorships        MentorshipConnection[] @relation("VolunteerConnections")
   menteeship         MentorshipConnection[] @relation("StudentConnections")
   volunteerNotes     MentorshipNote[]
+  scholarWorkspace   ScholarWorkspace?
+  jobApplications    JobApplication[]
 }
 
 // ─── Volunteer ───────────────────────────────────────────
@@ -435,4 +446,34 @@ model Streak {
   longestStreak  Int       @default(0)
   lastActiveDate DateTime?
   updatedAt      DateTime  @updatedAt
+}
+
+// ─── Scholar Workspace ───────────────────────────────────
+
+model ScholarWorkspace {
+  id                 String   @id @default(cuid())
+  studentId          String   @unique
+  student            User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  onboarding         Json?
+  careerComparer     Json?
+  degreePlan         Json?
+  internshipStrategy Json?
+  jobStrategy        Json?
+  isHealthcareTrack  Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model JobApplication {
+  id          String           @id @default(cuid())
+  studentId   String
+  student     User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  company     String
+  jobTitle    String
+  dateApplied DateTime?
+  stage       ApplicationStage @default(APPLIED)
+  notes       String?
+  url         String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
