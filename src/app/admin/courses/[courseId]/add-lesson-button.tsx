@@ -66,17 +66,16 @@ export function AddLessonButton({ moduleId, currentOrder }: { moduleId: string; 
               ))}
             </select>
           </div>
-          {type === "VIDEO" && (
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Video URL</label>
-              <input value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)}
-                placeholder="https://..." className="w-full text-sm rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring" />
-            </div>
-          )}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium">Content <span className="text-muted-foreground font-normal">(HTML supported)</span></label>
+            <label className="text-sm font-medium">Embed URL <span className="text-muted-foreground font-normal">(optional)</span></label>
+            <input value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="YouTube, Canva, Google Slides, Loom, etc." className="w-full text-sm rounded-md border border-input bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring" />
+            <p className="text-xs text-muted-foreground">For Canva: use the presentation&apos;s view URL. For YouTube: use the embed URL (youtube.com/embed/...).</p>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Content <span className="text-muted-foreground font-normal">(Markdown supported)</span></label>
             <textarea value={content} onChange={(e) => setContent(e.target.value)}
-              rows={6} placeholder="Lesson content..."
+              rows={6} placeholder="Lesson content... (supports **bold**, # headings, - lists, [links](url), ![images](url))"
               className="w-full text-sm rounded-md border border-input bg-background px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-ring font-mono" />
           </div>
           <div className="flex justify-end gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import {
@@ -76,13 +77,17 @@ export function AppSidebar({ role, userName }: AppSidebarProps) {
   const nav = navByRole[role];
 
   return (
-    <aside className="flex h-screen w-64 flex-col bg-black text-white fixed left-0 top-0 z-40">
+    <aside className="flex h-[85vh] w-64 flex-col bg-black text-white fixed left-0 top-[15vh] z-40">
       {/* Logo */}
       <div className="flex items-center gap-2 px-6 py-6 border-b border-white/10">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <span className="text-lg font-semibold tracking-tight">
-            One Refugee
-          </span>
+        <Link href="/dashboard">
+          <Image
+            src="/One_Refugee_logo_white.webp"
+            alt="One Refugee"
+            width={160}
+            height={36}
+            priority
+          />
         </Link>
       </div>
 

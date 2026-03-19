@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MarkCompleteButton } from "./mark-complete-button";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default async function LessonPage({
   params,
@@ -84,24 +86,47 @@ export default async function LessonPage({
         <h1 className="text-2xl font-semibold">{lesson.title}</h1>
       </div>
 
-      {/* Video */}
+      {/* Embedded resource (video, Canva, slides, etc.) */}
       {lesson.videoUrl && (
         <div className="aspect-video rounded-lg overflow-hidden bg-black">
           <iframe
             src={lesson.videoUrl}
             className="w-full h-full"
             allowFullScreen
+            allow="autoplay; fullscreen"
           />
         </div>
       )}
 
       {/* Content */}
       {lesson.content && (
-        <div className="prose prose-neutral max-w-none">
-          <div
-            className="text-sm leading-relaxed text-foreground space-y-4"
-            dangerouslySetInnerHTML={{ __html: lesson.content }}
-          />
+        <div className="prose prose-neutral max-w-none text-sm leading-relaxed
+          prose-headings:font-semibold prose-headings:text-foreground
+          prose-h1:text-2xl prose-h2:text-lg prose-h3:text-base
+          prose-p:text-foreground prose-p:my-3
+          prose-strong:font-semibold prose-strong:text-foreground
+          prose-ul:my-3 prose-ol:my-3 prose-li:my-1
+          prose-blockquote:border-l-4 prose-blockquote:border-[#E07B39] prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-muted-foreground
+          prose-table:w-full prose-th:text-left prose-th:font-semibold prose-th:border prose-th:p-2 prose-td:border prose-td:p-2
+          prose-code:bg-muted prose-code:px-1 prose-code:rounded
+          prose-img:rounded-lg prose-img:w-full prose-img:my-4
+          prose-a:text-[#E07B39] prose-a:underline hover:prose-a:text-[#c96a2a]">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              a: ({ href, children }) => (
+                <a href={href} target="_blank" rel="noopener noreferrer">
+                  {children}
+                </a>
+              ),
+              img: ({ src, alt }) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={src} alt={alt ?? ""} className="rounded-lg w-full my-4" />
+              ),
+            }}
+          >
+            {lesson.content}
+          </ReactMarkdown>
         </div>
       )}
 

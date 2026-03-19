@@ -7,7 +7,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   if (!user) redirect("/sign-in");
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-[85vh] bg-background">
       <AppSidebar
         role={user.role as "STUDENT" | "STAFF" | "ADMIN" | "VOLUNTEER"}
         userName={user.name}

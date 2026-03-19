@@ -135,6 +135,7 @@ export default async function StudentProfilePage({
             {student.studentProfile?.major && (
               <Badge variant="outline" className="text-xs">
                 {student.studentProfile.major}
+                {student.studentProfile.yearInSchool && ` · ${student.studentProfile.yearInSchool}`}
               </Badge>
             )}
             {student.studentProfile?.countryOfOrigin && (
